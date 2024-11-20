@@ -49,13 +49,13 @@
     function render(data) {
       const html = data.map(([word, definitions]) => {
         const rMeanings = meaning => `<span class="word-meaning">${meaning}</span>`
-        const rDefinition = ([wordClass, meaningArr]) => `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('')}</div>`
+        const rDefinition = ([wordClass, meaningArr]) => `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('；')}</div>`
         return `<div class="word"><span class="word-text">${word}</span><div class="word-defs">${definitions.map(rDefinition).join('')}</div></div>`
       }).join('\n');
       document.getElementById('root').innerHTML = html;
     }
 
-    fetch('./vocabulary').then(res => res.text()).then(words => {
+    fetch('./vocabulary?t=' + Date.now()).then(res => res.text()).then(words => {
       render(parseData(words));
     })
   </script>
