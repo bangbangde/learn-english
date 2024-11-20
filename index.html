@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn English</title>
+  <style>
+    .word {
+      display: flex;
+    }
+    .word-text {
+      display: inline-block;
+      min-width: 20ex;
+      font-weight: bolder;
+      color: green;
+    }
+    .word-defs {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .word-class {
+      display: inline-block;
+      width: 4ex;
+      padding-left: 2ex;
+      font-weight: bold;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const words = `
+    abstract
+    adj. 抽象的，抽象派的
+    n. （文献等的）摘要，概要
+    v. 提取，抽取；写...的摘要
+
+    indiispensable
+    adj. 不可或缺的
+
+    tranquility
+    n. 宁静
+    `;
+
+    function parseData(words) {
+      const split = (w, seperator) => w.trim().split(seperator).map(v => v.trim()).filter(v => !!v);
+
+      const wordsArr = split(words, '\n\n').map(w => {
+        const [word, ...defs] = split(w, '\n');
+        const definitions = defs.map(d => {
+          const [wordClass, ...meanings] = split(d, ' ');
+          const meaningArr = split(meanings.join(' '), '；');
+          return [wordClass, meaningArr];
+        });
+        return [word, definitions];
+      });
+
+      return wordsArr;
+    }
+
+    function render(data) {
+      const html = data.map(([word, definitions]) => {
+        const rMeanings = meaning => `<span class="word-meaning">${meaning}</span>`
+        const rDefinition = ([wordClass, meaningArr]) => `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('')}</div>`
+        return `<div class="word"><span class="word-text">${word}</span><div class="word-defs">${definitions.map(rDefinition).join('')}</div></div>`
+      }).join('\n');
+      document.getElementById('root').innerHTML = html;
+    }
+
+    render(parseData(words));
+  </script>
+</body>
+</html>
