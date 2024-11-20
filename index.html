@@ -30,19 +30,6 @@
 <body>
   <div id="root"></div>
   <script>
-    const words = `
-    abstract
-    adj. 抽象的，抽象派的
-    n. （文献等的）摘要，概要
-    v. 提取，抽取；写...的摘要
-
-    indiispensable
-    adj. 不可或缺的
-
-    tranquility
-    n. 宁静
-    `;
-
     function parseData(words) {
       const split = (w, seperator) => w.trim().split(seperator).map(v => v.trim()).filter(v => !!v);
 
@@ -68,7 +55,9 @@
       document.getElementById('root').innerHTML = html;
     }
 
-    render(parseData(words));
+    fetch('./vocabulary').then(res => res.text()).then(words => {
+      render(parseData(words));
+    })
   </script>
 </body>
 </html>
