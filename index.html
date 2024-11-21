@@ -27,6 +27,19 @@
       font-weight: bold;
       color: gray;
     }
+    .def-blockquote {
+      width: 100%;
+      padding: 1ex;
+      margin: 1ex;
+      background-color: gainsboro;
+      border-radius: 8px;
+    }
+    .def-blockquote.collapsed {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -37,11 +50,16 @@
 
       const wordsArr = split(words, '\n\n').map(w => {
         const [word, ...defs] = split(w, '\n');
+
         const definitions = defs.map(d => {
+          if (d.startsWith('> ')) {
+            return {type: 'bq', data: d.slice(2)};
+          }
           const [wordClass, ...meanings] = split(d, ' ');
           const meaningArr = split(meanings.join(' '), '；');
-          return [wordClass, meaningArr];
+          return {type: 'def', data: [wordClass, meaningArr]};
         });
+
         return [word, definitions];
       });
 
@@ -50,13 +68,28 @@
 
     function render(data) {
       const html = data.map(([word, definitions], i) => {
-        const rMeanings = meaning => `<span class="word-meaning">${meaning}</span>`
-        const rDefinition = ([wordClass, meaningArr]) => `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('')}</div>`
+        const rMeanings = meaning => `<span class="word-meaning">${meaning}；</span>`
+        // const rDefinition = ([wordClass, meaningArr]) => `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('')}</div>`
+        const rDefinition = ({type, data}) => {
+          if (type === 'bq') {
+            return `<div class="def-blockquote collapsed" onclick="onClickBq(event)">${data}</div>`;
+          }
+          const [wordClass, meaningArr] = data;
+          return `<div class="def-item"><span class="word-class">${wordClass}</span>${meaningArr.map(rMeanings).join('')}</div>`;
+        }
         return `<div class="word"><span class="word-text">${word}</span><div class="word-defs">${definitions.map(rDefinition).join('')}</div></div>`
       }).join('\n');
       document.getElementById('root').innerHTML = html;
     }
 
+    function onClickBq(ev) {
+      const key = 'collapsed';
+      if (ev.target.classList.contains(key)) {
+        ev.target.classList.remove(key);
+      } else {
+        ev.target.classList.add(key);
+      }
+    }
 
     fetch('./vocabulary').then(res => res.text()).then(words => {
       render(parseData(words));
